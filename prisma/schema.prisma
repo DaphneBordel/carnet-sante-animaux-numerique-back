@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TypeAnimaux {
+  CHIEN
+  CHAT
+  OISEAU
+  POISSON
+  CHEVAUX
+  RONGEUR
+  REPTILE
+  AUTRE
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String 
+  createdAt DateTime @default(now())
+
+  animaux Animaux[]
+}
+
+model Animaux {
+  id Int @id @default(autoincrement())
+  nom String
+  dateNaissance DateTime
+  type TypeAnimaux
+  poids Float
+  espece String 
+  icad String
+  pbSante String
+  image String
+  userId Int
+
+  user User @relation(fields: [userId], references: [id])
+  traitements Traitement[]
+  antiparasitaires Antiparasitaire[]
+  vermifuges Vermifuge[]
+  vaccins Vaccin[]
+}
+
+model Traitement {
+  id Int @id @default(autoincrement())
+  date DateTime
+  listeMedicaments Medicament[]
+  animauxId Int 
+
+  animal Animaux @relation(fields: [animauxId], references: [id])
+}
+
+model Medicament {
+  id Int @id @default(autoincrement())
+  nom String 
+  dosage String
+  nbJour Int 
+  traitementId Int 
+  
+  traitement Traitement @relation(fields: [traitementId], references: [id])
+}
+
+model Antiparasitaire {
+  id Int @id @default(autoincrement())
+  date DateTime
+  nom String 
+  qtite Float
+  dateRappel DateTime
+  animauxId Int 
+
+  animal Animaux @relation(fields: [animauxId], references: [id])
+}
+
+model Vermifuge {
+  id Int @id @default(autoincrement())
+  date DateTime
+  nom String 
+  qtite Float
+  dateRappel DateTime
+  animauxId Int 
+
+  animal Animaux @relation(fields: [animauxId], references: [id])
+}
+
+model Vaccin {
+  id Int @id @default(autoincrement())
+  date DateTime
+  nom String 
+  qtite Float
+  dateRappel DateTime
+  animauxId Int 
+
+  animal Animaux @relation(fields: [animauxId], references: [id])
+}
+
