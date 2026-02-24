@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateAnimauxDto } from './dto/create.dto';
 import { AnimauxService } from './animaux.service';
 import type { RequestWithUser } from 'src/auth/interfaces/request-with-user';
@@ -14,5 +22,15 @@ export class AnimauxController {
     @Body() dto: CreateAnimauxDto,
   ) {
     return this.animalService.createAnimalByUserId(req.user?.sub, dto);
+  }
+
+  @Get()
+  getAnimauxByUserId(@Req() req: RequestWithUser) {
+    return this.animalService.getAnimauxByUserId(req.user?.sub);
+  }
+
+  @Get(':id')
+  getAnimalById(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.animalService.getAnimalById(req.user?.sub, id);
   }
 }
