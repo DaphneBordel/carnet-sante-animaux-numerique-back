@@ -25,6 +25,7 @@ export class AnimauxService {
     id: number | undefined,
     dtoAnimal: CreateAnimauxDto,
   ): Promise<Animaux> {
+      console.log('id', id);
     if (!id) throw new ForbiddenException('User not exist');
 
     const existingUser = await this.prismaService.user.findUnique({
@@ -39,7 +40,7 @@ export class AnimauxService {
         type: TypeAnimal[dtoAnimal.type],
         espece: dtoAnimal.espece,
         poids: dtoAnimal.poids,
-        icad: dtoAnimal.Icad,
+            icad: dtoAnimal.icad,
         image: dtoAnimal.image,
         pbSante: dtoAnimal.pbSante,
         userId: id,

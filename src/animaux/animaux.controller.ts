@@ -1,8 +1,10 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { CreateAnimauxDto } from './dto/create.dto';
 import { AnimauxService } from './animaux.service';
 import type { RequestWithUser } from 'src/auth/interfaces/request-with-user';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('animaux')
 export class AnimauxController {
   constructor(private readonly animalService: AnimauxService) {}

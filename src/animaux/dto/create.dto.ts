@@ -29,7 +29,7 @@ export class CreateAnimauxDto {
   image: string;
 
   @IsString()
-  Icad: string;
+  icad: string;
 
   @IsString()
   pbSante: string;
