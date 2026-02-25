@@ -31,7 +31,7 @@ export class VaccinService {
     const vaccin = await this.prismaService.vaccin.create({
       data: {
         nom: dto.nom,
-        dateRappel: dto.dateRappel ? dto.dateRappel : null,
+        dateRappel: dto.dateRappel ? new Date(dto.dateRappel) : null,
         animalId: dto.animalId,
       },
     });
@@ -65,10 +65,10 @@ export class VaccinService {
     return this.prismaService.vaccin.update({
       where: { id: vaccinId },
       data: {
-        ...(dto.date && { date: dto.date }),
+        ...(dto.date && { date: new Date(dto.date) }),
         ...(dto.nom && { nom: dto.nom }),
         ...(dto.dateRappel && {
-          dateRappel: dto.dateRappel,
+          dateRappel: new Date(dto.dateRappel),
         }),
       },
     });

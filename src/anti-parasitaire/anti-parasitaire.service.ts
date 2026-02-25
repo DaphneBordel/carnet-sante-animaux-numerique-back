@@ -30,10 +30,10 @@ export class AntiParasitaireService {
 
     const antiParasitaire = await this.prismaService.antiparasitaire.create({
       data: {
-        date: dto.date,
+        date: dto.date ? new Date(dto.date) : undefined,
         nom: dto.nom,
         qtite: dto.qtité,
-        dateRappel: dto.dateRappel ? dto.dateRappel : null,
+        dateRappel: dto.dateRappel ? new Date(dto.dateRappel) : null,
         animalId: dto.animalId,
       },
     });
@@ -67,11 +67,11 @@ export class AntiParasitaireService {
     return this.prismaService.antiparasitaire.update({
       where: { id: antiParaId },
       data: {
-        ...(dto.date && { date: dto.date }),
+        ...(dto.date && { date: new Date(dto.date) }),
         ...(dto.nom && { nom: dto.nom }),
         ...(dto.qtité && { qtite: dto.qtité }),
         ...(dto.dateRappel && {
-          dateRappel: dto.dateRappel,
+          dateRappel: new Date(dto.dateRappel),
         }),
       },
     });
