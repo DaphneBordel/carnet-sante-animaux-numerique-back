@@ -1,6 +1,7 @@
-import { IsDateString, IsInt, IsString } from 'class-validator';
+import { IsDateString, IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
-enum Type {
+enum TypeAnimal {
   CHIEN,
   CHAT,
   OISEAU,
@@ -17,12 +18,13 @@ export class CreateAnimauxDto {
   @IsDateString()
   dateNaissance: Date;
 
-  type: Type;
+  type: TypeAnimal;
 
   @IsString()
   espece: string;
 
-  @IsInt()
+  @Type(() => Number) // 🔥 obligatoire
+  @IsNumber({ maxDecimalPlaces: 2 })
   poids: number;
 
   @IsString()
