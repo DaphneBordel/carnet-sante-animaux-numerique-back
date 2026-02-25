@@ -1,14 +1,11 @@
 import { IsDateString, IsString } from 'class-validator';
 
-export class CreateAntiParaDto {
+export class CreateVaccinDto {
   @IsDateString()
   date?: Date;
 
   @IsString()
   nom: string;
-
-  @IsString()
-  qtité: string;
 
   @IsDateString()
   dateRappel?: Date;

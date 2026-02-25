@@ -28,9 +28,9 @@ model Animal {
 
 model Antiparasitaire {
   id         Int       @id @default(autoincrement())
-  date       DateTime  @default(now())
+  date       DateTime?  @default(now())
   nom        String
-  qtite      Float
+  qtite      String
   dateRappel DateTime?
   animalId  Int
   animal    Animal   @relation(fields: [animalId], references: [id])
@@ -71,9 +71,8 @@ model User {
 
 model Vaccin {
   id         Int       @id @default(autoincrement())
-  date       DateTime  @default(now())
+  date       DateTime?  @default(now())
   nom        String
-  qtite      Float
   dateRappel DateTime?
   animalId  Int
   animal   Animal   @relation(fields: [animalId], references: [id])
@@ -81,9 +80,9 @@ model Vaccin {
 
 model Vermifuge {
   id         Int       @id @default(autoincrement())
-  date       DateTime  @default(now())
+  date       DateTime?  @default(now())
   nom        String
-  qtite      Float
+  qtite      String
   dateRappel DateTime?
   animalId  Int
   animal    Animal   @relation(fields: [animalId], references: [id])
