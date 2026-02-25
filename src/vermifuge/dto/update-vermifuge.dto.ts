@@ -11,7 +11,7 @@ export class UpdateVermifugeDto {
 
   @IsOptional()
   @IsString()
-  qtité?: string;
+  qtite?: string;
 
   @IsOptional()
   @IsDateString()

@@ -32,7 +32,7 @@ export class AntiParasitaireService {
       data: {
         date: dto.date ? new Date(dto.date) : undefined,
         nom: dto.nom,
-        qtite: dto.qtité,
+        qtite: dto.qtite,
         dateRappel: dto.dateRappel ? new Date(dto.dateRappel) : null,
         animalId: dto.animalId,
       },
@@ -69,7 +69,7 @@ export class AntiParasitaireService {
       data: {
         ...(dto.date && { date: new Date(dto.date) }),
         ...(dto.nom && { nom: dto.nom }),
-        ...(dto.qtité && { qtite: dto.qtité }),
+        ...(dto.qtite && { qtite: dto.qtite }),
         ...(dto.dateRappel && {
           dateRappel: new Date(dto.dateRappel),
         }),

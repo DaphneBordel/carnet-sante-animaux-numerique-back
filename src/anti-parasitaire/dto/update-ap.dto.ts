@@ -9,7 +9,7 @@ export class UpdateAntiParaDto {
   nom: string;
 
   @IsString()
-  qtité: string;
+  qtite: string;
 
   @IsOptional()
   @IsDateString()
