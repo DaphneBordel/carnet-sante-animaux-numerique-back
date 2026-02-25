@@ -41,7 +41,7 @@ export class VermifugeService {
   }
 
   async updateVermifuge(
-    userId: number,
+    userId: number | undefined,
     vermifugeId: number,
     dto: UpdateVermifugeDto,
   ) {
