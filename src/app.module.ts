@@ -8,9 +8,10 @@ import { TraitementModule } from './traitement/traitement.module';
 import { AntiParasitaireModule } from './anti-parasitaire/anti-parasitaire.module';
 import { PoidsAnimalModule } from './poids-animal/poids-animal.module';
 import { VaccinModule } from './vaccin/vaccin.module';
+import { VermifugeModule } from './vermifuge/vermifuge.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, AnimauxModule, TraitementModule, AntiParasitaireModule, PoidsAnimalModule, VaccinModule],
+  imports: [AuthModule, PrismaModule, AnimauxModule, TraitementModule, AntiParasitaireModule, PoidsAnimalModule, VaccinModule, VermifugeModule],
   controllers: [AppController],
   providers: [AppService],
 })
