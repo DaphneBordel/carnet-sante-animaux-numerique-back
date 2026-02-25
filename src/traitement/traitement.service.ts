@@ -31,7 +31,8 @@ export class TraitementService {
       // Création du traitement
       const newTraitement = await tx.traitement.create({
         data: {
-          date: new Date(dtoTraitement.date),
+          dateDebut: new Date(dtoTraitement.dateDebut),
+          dateFin: new Date(dtoTraitement.dateFin),
           animal: { connect: { id: animal.id } },
         },
       });

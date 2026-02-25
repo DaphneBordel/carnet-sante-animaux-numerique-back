@@ -6,9 +6,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AnimauxModule } from './animaux/animaux.module';
 import { TraitementModule } from './traitement/traitement.module';
 import { AntiParasitaireModule } from './anti-parasitaire/anti-parasitaire.module';
+import { PoidsAnimalModule } from './poids-animal/poids-animal.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, AnimauxModule, TraitementModule, AntiParasitaireModule],
+  imports: [AuthModule, PrismaModule, AnimauxModule, TraitementModule, AntiParasitaireModule, PoidsAnimalModule],
   controllers: [AppController],
   providers: [AppService],
 })

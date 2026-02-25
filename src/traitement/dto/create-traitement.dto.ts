@@ -13,7 +13,10 @@ export class CreateMedicamentDto {
 
 export class CreateTraitementDto {
   @IsDateString()
-  date: Date;
+  dateDebut: Date;
+
+  @IsDateString()
+  dateFin: Date;
 
   listeMedicaments: CreateMedicamentDto[];
 
