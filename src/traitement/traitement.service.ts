@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTraitementDto } from './dto/create-traitement.dto';
 import { TraitementWithRelations } from './interfaces/traitement.interface';
+import { OwnershipService } from 'src/common/validators/ownership.service';
 
 @Injectable()
 export class TraitementService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly ownershipService: OwnershipService,
+  ) {}
 
   async createTraitementByAnimal(
     userId: number | undefined,
@@ -13,18 +17,15 @@ export class TraitementService {
   ): Promise<TraitementWithRelations> {
     if (!userId) throw new NotFoundException('User not exist');
 
-    // Vérifie que le user existe et récupère ses animaux
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      include: { animaux: true },
-    });
-    if (!user) throw new NotFoundException('User not exist');
-
-    // Vérifie que l'animal appartient à l'utilisateur
-    const animal = user.animaux.find(
-      (animal) => animal.id === dtoTraitement.animalId,
+    //Si le userId est undefined on rejète la requête immédiatement
+    if (!userId) throw new NotFoundException('User is undefined');
+    //on vérifie que l'utilisateur existe
+    await this.ownershipService.verifyUserExists(userId);
+    //on vérifie que l'animal appartient à l'utilisateur
+    const animal = await this.ownershipService.verifyAnimalOwnership(
+      userId,
+      dtoTraitement.animalId,
     );
-    if (!animal) throw new NotFoundException('Animal not found');
 
     // Crée le traitement et les médicaments dans une transaction
     const traitement = await this.prismaService.$transaction(async (tx) => {

@@ -33,4 +33,12 @@ export class AnimauxController {
   getAnimalById(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.animalService.getAnimalById(req.user?.sub, id);
   }
+
+  @Get(':id/details')
+  getAnimalByIdWithRelations(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.animalService.getAnimalByIdWithRelations(req.user?.sub, id);
+  }
 }

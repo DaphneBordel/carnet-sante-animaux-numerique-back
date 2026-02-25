@@ -11,4 +11,6 @@ export class CreateAntiParaDto {
   @Type(() => Number) // 🔥 obligatoire
   @IsNumber({ maxDecimalPlaces: 2 })
   qtité: number;
+
+  animalId: number;
 }

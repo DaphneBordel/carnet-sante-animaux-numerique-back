@@ -7,10 +7,14 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePoidsDto } from './dto/create-poids.dto';
 import { Poids } from '@prisma/client';
+import { OwnershipService } from 'src/common/validators/ownership.service';
 
 @Injectable()
 export class PoidsAnimalService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly ownershipService: OwnershipService,
+  ) {}
 
   async addPoidsAnimal(
     id: number | undefined,
@@ -19,18 +23,12 @@ export class PoidsAnimalService {
     //on recherche si l'utilisateur existe et si l'animal lui appartient bien
     if (!id) throw new ForbiddenException('User not authorized');
 
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-      include: {
-        animaux: true,
-      },
-    });
-    if (!user) throw new NotFoundException('User is not found');
-
-    const animalExist = user.animaux.find(
-      (animal) => animal.id === dto.animalId,
-    );
-    if (!animalExist) throw new NotFoundException('Animal does not exist');
+    //Si le userId est undefined on rejète la requête immédiatement
+    if (!id) throw new NotFoundException('User is undefined');
+    //on vérifie que l'utilisateur existe
+    await this.ownershipService.verifyUserExists(id);
+    //on vérifie que l'animal appartient à l'utilisateur
+    await this.ownershipService.verifyAnimalOwnership(id, dto.animalId);
 
     const poids: Poids = await this.prismaService.poids.create({
       data: {
