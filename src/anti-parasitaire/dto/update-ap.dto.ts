@@ -1,6 +1,7 @@
-import { IsDateString, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class UpdateAntiParaDto {
+  @IsOptional()
   @IsDateString()
   date?: string;
 
@@ -10,6 +11,7 @@ export class UpdateAntiParaDto {
   @IsString()
   qtité: string;
 
+  @IsOptional()
   @IsDateString()
   dateRappel?: string;
 

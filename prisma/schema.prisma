@@ -11,6 +11,7 @@ model Animal {
   id              Int               @id @default(autoincrement())
   nom             String
   dateNaissance   DateTime
+  genre           genre
   type            animaux_type
   espece          String?
   icad            String?
@@ -28,7 +29,7 @@ model Animal {
 
 model Antiparasitaire {
   id         Int       @id @default(autoincrement())
-  date       DateTime?  @default(now())
+  date       DateTime  @default(now())
   nom        String
   qtite      String
   dateRappel DateTime?
@@ -71,7 +72,7 @@ model User {
 
 model Vaccin {
   id         Int       @id @default(autoincrement())
-  date       DateTime?  @default(now())
+  date       DateTime  @default(now())
   nom        String
   dateRappel DateTime?
   animalId  Int
@@ -80,7 +81,7 @@ model Vaccin {
 
 model Vermifuge {
   id         Int       @id @default(autoincrement())
-  date       DateTime?  @default(now())
+  date       DateTime  @default(now())
   nom        String
   qtite      String
   dateRappel DateTime?
@@ -97,4 +98,9 @@ enum animaux_type {
   RONGEUR
   REPTILE
   AUTRE
+}
+
+enum genre {
+  FEMELLE
+  MALE
 }
