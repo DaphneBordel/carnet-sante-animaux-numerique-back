@@ -20,6 +20,11 @@ export enum TypeAnimal {
   POISSON = 'POISSON',
 }
 
+export enum GenreAnimal {
+  FEMELLE = 'FEMELLE',
+  MALE = 'MALE',
+}
+
 @Injectable()
 export class AnimauxService {
   constructor(
@@ -50,6 +55,7 @@ export class AnimauxService {
           image: dtoAnimal.image,
           pbSante: dtoAnimal.pbSante,
           userId: id,
+          genre: dtoAnimal.genre ? GenreAnimal[dtoAnimal.genre] : null,
         },
       });
       if (!animalCreate)
