@@ -1,7 +1,9 @@
-import { IsDateString, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsString } from 'class-validator';
 
 export class CreateAntiParaDto {
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   date?: Date;
 
   @IsString()
@@ -10,7 +12,8 @@ export class CreateAntiParaDto {
   @IsString()
   qtité: string;
 
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   dateRappel?: Date;
 
   animalId: number;

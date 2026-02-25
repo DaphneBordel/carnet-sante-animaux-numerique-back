@@ -1,13 +1,15 @@
 import { IsDateString, IsString } from 'class-validator';
 
 export class CreateVaccinDto {
-  @IsDateString()
+  @Type(() => Date)
+@IsDate()
   date?: Date;
 
   @IsString()
   nom: string;
 
-  @IsDateString()
+  @Type(() => Date)
+@IsDate()
   dateRappel?: Date;
 
   animalId: number;

@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDateString, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 
 enum TypeAnimal {
   CHIEN,
@@ -15,7 +15,8 @@ export class CreateAnimauxDto {
   @IsString()
   nom: string;
 
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   dateNaissance: Date;
 
   type: TypeAnimal;

@@ -1,16 +1,16 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsString } from 'class-validator';
 
-export class CreateVermifugeDto {
+export class UpdateVermifugeDto {
   @Type(() => Date)
   @IsDate()
   date?: Date;
 
   @IsString()
-  nom: string;
+  nom?: string;
 
   @IsString()
-  qtité: string;
+  qtité?: string;
 
   @Type(() => Date)
   @IsDate()
