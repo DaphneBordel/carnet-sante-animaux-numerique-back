@@ -85,14 +85,11 @@ export class VermifugeService {
     if (!userId) {
       throw new NotFoundException('User not found');
     }
-    if (!userId) {
-      throw new NotFoundException('User not found');
-    }
     //vérifie que l'animal appartient à ce user
     await this.ownershipService.verifyAnimalOwnership(userId, animalId);
 
     // Vérifie que le vermifuge appartient à cet animal
-    const vermifuge = await this.prismaService.vermifuge.findFirst({
+    const vermifuge = await this.prismaService.vermifuge.findUnique({
       where: {
         id: vermifugeId,
         animalId: animalId,

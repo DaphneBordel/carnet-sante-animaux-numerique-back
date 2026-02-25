@@ -13,6 +13,7 @@ import { VermifugeService } from './vermifuge.service';
 import type { RequestWithUser } from 'src/auth/interfaces/request-with-user';
 import { CreateVermifugeDto } from './dto/create-vermifuge.dto';
 import { UpdateVermifugeDto } from './dto/update-vermifuge.dto';
+import { DeleteVermifugeDto } from './dto/delete-vermifuge.dto';
 
 @UseGuards(AuthGuard)
 @Controller('vermifuge')
@@ -37,8 +38,12 @@ export class VermifugeController {
   deleteVermifuge(
     @Param('id') id: number,
     @Req() req: RequestWithUser,
-    @Body() animalId: number,
+    @Body() dto: DeleteVermifugeDto,
   ) {
-    return this.vermifugeService.deleteVermifuge(req.user?.sub, id, animalId);
+    return this.vermifugeService.deleteVermifuge(
+      req.user?.sub,
+      id,
+      dto.animalId,
+    );
   }
 }

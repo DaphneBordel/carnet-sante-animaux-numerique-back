@@ -13,6 +13,7 @@ import type { RequestWithUser } from 'src/auth/interfaces/request-with-user';
 import { CreateVaccinDto } from './dto/create-vaccin.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateVaccinDto } from './dto/update-vaccin.dto';
+import { DeleteVaccinDto } from './dto/delete-vaccin.dto';
 
 @UseGuards(AuthGuard)
 @Controller('vaccin')
@@ -37,8 +38,8 @@ export class VaccinController {
   deleteVermifuge(
     @Param('id') id: number,
     @Req() req: RequestWithUser,
-    @Body() animalId: number,
+    @Body() dto: DeleteVaccinDto,
   ) {
-    return this.vaccinService.deleteVaccin(req.user?.sub, id, animalId);
+    return this.vaccinService.deleteVaccin(req.user?.sub, id, dto.animalId);
   }
 }

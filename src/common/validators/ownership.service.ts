@@ -18,7 +18,9 @@ export class OwnershipService {
   }
 
   async verifyAnimalOwnership(userId: number, animalId: number) {
-    const animal = await this.prisma.animal.findFirst({
+    console.log('userId', userId);
+    console.log('animalId', animalId);
+    const animal = await this.prisma.animal.findUnique({
       where: {
         id: animalId,
         userId: userId,
