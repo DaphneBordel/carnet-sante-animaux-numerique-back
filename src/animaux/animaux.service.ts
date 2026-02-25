@@ -78,22 +78,13 @@ export class AnimauxService {
     return animal;
   }
 
-  async getAnimauxByUserId(
-    id: number | undefined,
-  ): Promise<AnimauxWithRelations[]> {
+  async getAnimauxByUserId(id: number | undefined): Promise<Animal[]> {
     if (!id) throw new NotFoundException('User is undefined');
 
     await this.ownershipService.verifyUserExists(id);
 
     const animaux = await this.prismaService.animal.findMany({
       where: { userId: id },
-      include: {
-        traitements: {
-          include: {
-            medicaments: true,
-          },
-        },
-      },
     });
     return animaux;
   }
@@ -114,6 +105,9 @@ export class AnimauxService {
                 medicaments: true,
               },
             },
+            antiparasitaires: true,
+            vermifuges: true,
+            vaccins: true,
           },
         },
       },
@@ -129,7 +123,7 @@ export class AnimauxService {
       );
     return existingAnimaux;
   }
-
+  //récupère l'animal sans ses relations (traitements, vermifuges, etc.)
   async getAnimalById(
     id: number | undefined,
     animalId: string,

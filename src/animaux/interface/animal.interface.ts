@@ -7,6 +7,9 @@ const animalWithRelationsArgs = Prisma.validator<Prisma.AnimalDefaultArgs>()({
         medicaments: true,
       },
     },
+    vermifuges: true,
+    vaccins: true,
+    antiparasitaires: true,
   },
 });
 
