@@ -1,8 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAntiParaDto } from './dto/create-ap.dto';
 import { OwnershipService } from 'src/common/validators/ownership.service';
 import { Antiparasitaire } from '@prisma/client';
+import { UpdateAntiParaDto } from './dto/update-ap.dto';
 
 @Injectable()
 export class AntiParasitaireService {
@@ -33,5 +38,42 @@ export class AntiParasitaireService {
       },
     });
     return antiParasitaire;
+  }
+
+  async updateAntiParasitaire(
+    userId: number | undefined,
+    antiParaId: number,
+    dto: UpdateAntiParaDto,
+  ) {
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    //vérifie que l'animal appartient à ce user
+    await this.ownershipService.verifyAnimalOwnership(userId, dto.animalId);
+
+    // Vérifie que le vermifuge appartient à cet animal
+    const antiparasitaire = await this.prismaService.antiparasitaire.findFirst({
+      where: {
+        id: antiParaId,
+        animalId: dto.animalId,
+      },
+    });
+
+    if (!antiparasitaire) {
+      throw new NotFoundException('Antiparasitaire not found');
+    }
+
+    // Update partiel
+    return this.prismaService.antiparasitaire.update({
+      where: { id: antiParaId },
+      data: {
+        ...(dto.date && { date: dto.date }),
+        ...(dto.nom && { nom: dto.nom }),
+        ...(dto.qtité && { qtite: dto.qtité }),
+        ...(dto.dateRappel && {
+          dateRappel: dto.dateRappel,
+        }),
+      },
+    });
   }
 }

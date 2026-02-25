@@ -1,13 +1,13 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsString } from 'class-validator';
 
-export class CreateVaccinDto {
+export class UpdateVaccinDto {
   @Type(() => Date)
   @IsDate()
   date?: Date;
 
   @IsString()
-  nom: string;
+  nom?: string;
 
   @Type(() => Date)
   @IsDate()
