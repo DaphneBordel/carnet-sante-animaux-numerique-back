@@ -7,13 +7,11 @@ export class CreateMedicamentDto {
   @IsString()
   posologie: string;
 
-  @Type(() => Date)
-@IsDate()
-  dateDebut: Date;
+  @IsDateString()
+  dateDebut: string;
 
-  @Type(() => Date)
-@IsDate()
-  dateFin: Date;
+  @IsDateString()
+  dateFin: string;
 }
 
 export class CreateTraitementDto {

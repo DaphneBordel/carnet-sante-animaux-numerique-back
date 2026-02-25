@@ -1,5 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsDate, IsInt, IsString } from 'class-validator';
+import { IsDateString, IsInt, IsString } from 'class-validator';
 
 export class UpdateMedicamentDto {
   @IsString()
@@ -16,9 +15,8 @@ export class UpdateMedicamentDto {
 }
 
 export class UpdateTraitementDto {
-  @Type(() => Date)
-  @IsDate()
-  date: Date;
+  @IsDateString()
+  date: string;
 
   listeMedicaments: UpdateMedicamentDto[];
 

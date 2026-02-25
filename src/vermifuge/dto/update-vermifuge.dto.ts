@@ -1,10 +1,8 @@
-import { Type } from 'class-transformer';
-import { IsDate, IsString } from 'class-validator';
+import { IsDateString, IsString } from 'class-validator';
 
 export class UpdateVermifugeDto {
-  @Type(() => Date)
-  @IsDate()
-  date?: Date;
+  @IsDateString()
+  date?: string;
 
   @IsString()
   nom?: string;
@@ -12,9 +10,8 @@ export class UpdateVermifugeDto {
   @IsString()
   qtité?: string;
 
-  @Type(() => Date)
-  @IsDate()
-  dateRappel?: Date;
+  @IsDateString()
+  dateRappel?: string;
 
   animalId: number;
 }
