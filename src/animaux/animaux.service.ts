@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAnimauxDto } from './dto/create.dto';
-import { Animaux } from '@prisma/client';
+import { Animal } from '@prisma/client';
 import { AnimauxWithRelations } from './interface/animal.interface';
 import { OwnershipService } from 'src/common/validators/ownership.service';
 
@@ -30,7 +30,7 @@ export class AnimauxService {
   async createAnimalByUserId(
     id: number | undefined,
     dtoAnimal: CreateAnimauxDto,
-  ): Promise<Animaux> {
+  ): Promise<Animal> {
     console.log('id', id);
     if (!id) throw new ForbiddenException('User not exist');
 
@@ -39,7 +39,7 @@ export class AnimauxService {
 
     //On créait l'animal
     const animal = await this.prismaService.$transaction(async (tx) => {
-      const animalCreate: Animaux = await tx.animaux.create({
+      const animalCreate: Animal = await tx.animal.create({
         data: {
           nom: dtoAnimal?.nom,
           dateNaissance: new Date(dtoAnimal?.dateNaissance),
@@ -79,12 +79,12 @@ export class AnimauxService {
 
     await this.ownershipService.verifyUserExists(id);
 
-    const animaux = await this.prismaService.animaux.findMany({
+    const animaux = await this.prismaService.animal.findMany({
       where: { userId: id },
       include: {
         traitements: {
           include: {
-            listeMedicaments: true,
+            medicaments: true,
           },
         },
       },
@@ -105,7 +105,7 @@ export class AnimauxService {
           include: {
             traitements: {
               include: {
-                listeMedicaments: true,
+                medicaments: true,
               },
             },
           },
@@ -127,7 +127,7 @@ export class AnimauxService {
   async getAnimalById(
     id: number | undefined,
     animalId: string,
-  ): Promise<Animaux> {
+  ): Promise<Animal> {
     //Si le userId est undefined on rejète la requête immédiatement
     if (!id) throw new NotFoundException('User is undefined');
     //on vérifie que l'utilisateur existe

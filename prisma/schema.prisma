@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model animaux {
+model Animal {
   id              Int               @id @default(autoincrement())
   nom             String
   dateNaissance   DateTime
@@ -18,89 +18,75 @@ model animaux {
   image           String
   userId          Int
   couleur         String?
-  user            user              @relation(fields: [userId], references: [id], map: "Animaux_userId_fkey")
-  antiparasitaire antiparasitaire[]
-  poids           poids[]
-  traitement      traitement[]
-  vaccin          vaccin[]
-  vermifuge       vermifuge[]
-
-  @@index([userId], map: "Animaux_userId_fkey")
+  user            User              @relation(fields: [userId], references: [id])
+  antiparasitaires Antiparasitaire[]
+  poids           Poids[]
+  traitements      Traitement[]
+  vaccins         Vaccin[]
+  vermifuges       Vermifuge[]
 }
 
-model antiparasitaire {
+model Antiparasitaire {
   id         Int       @id @default(autoincrement())
   date       DateTime  @default(now())
   nom        String
   qtite      Float
   dateRappel DateTime?
-  animauxId  Int
-  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Antiparasitaire_animauxId_fkey")
-
-  @@index([animauxId], map: "Antiparasitaire_animauxId_fkey")
+  animalId  Int
+  animal    Animal   @relation(fields: [animalId], references: [id])
 }
 
-model medicament {
+model Medicament {
   id           Int        @id @default(autoincrement())
   nom          String
   traitementId Int
   dateDebut    DateTime
   dateFin      DateTime
   posologie    String
-  traitement   traitement @relation(fields: [traitementId], references: [id], map: "Medicament_traitementId_fkey")
-
-  @@index([traitementId], map: "Medicament_traitementId_fkey")
+  traitement   Traitement @relation(fields: [traitementId], references: [id])
 }
 
-model poids {
+model Poids {
   id       Int      @id @default(autoincrement())
   date     DateTime @default(now())
   kilo     Float
   animalId Int
-  animaux  animaux  @relation(fields: [animalId], references: [id], map: "Poids_animalId_fkey")
-
-  @@index([animalId], map: "Poids_animalId_fkey")
+  animal  Animal  @relation(fields: [animalId], references: [id])
 }
 
-model traitement {
+model Traitement {
   id         Int          @id @default(autoincrement())
-  animauxId  Int
-  medicaments medicament[]
-  animaux    animaux      @relation(fields: [animauxId], references: [id], map: "Traitement_animauxId_fkey")
-
-  @@index([animauxId], map: "Traitement_animauxId_fkey")
+  animalId  Int
+  medicaments Medicament[]
+  animal    Animal      @relation(fields: [animalId], references: [id])
 }
 
-model user {
+model User {
   id        Int       @id @default(autoincrement())
-  email     String    @unique(map: "User_email_key")
+  email     String    @unique()
   password  String
   createdAt DateTime  @default(now())
-  animaux   animaux[]
+  animaux   Animal[]
 }
 
-model vaccin {
+model Vaccin {
   id         Int       @id @default(autoincrement())
   date       DateTime  @default(now())
   nom        String
   qtite      Float
   dateRappel DateTime?
-  animauxId  Int
-  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Vaccin_animauxId_fkey")
-
-  @@index([animauxId], map: "Vaccin_animauxId_fkey")
+  animalId  Int
+  animal   Animal   @relation(fields: [animalId], references: [id])
 }
 
-model vermifuge {
+model Vermifuge {
   id         Int       @id @default(autoincrement())
   date       DateTime  @default(now())
   nom        String
   qtite      Float
   dateRappel DateTime?
-  animauxId  Int
-  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Vermifuge_animauxId_fkey")
-
-  @@index([animauxId], map: "Vermifuge_animauxId_fkey")
+  animalId  Int
+  animal    Animal   @relation(fields: [animalId], references: [id])
 }
 
 enum animaux_type {

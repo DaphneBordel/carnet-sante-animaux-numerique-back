@@ -1,15 +1,15 @@
 import { Prisma } from '@prisma/client';
 
-const animalWithRelationsArgs = Prisma.validator<Prisma.AnimauxDefaultArgs>()({
+const animalWithRelationsArgs = Prisma.validator<Prisma.AnimalDefaultArgs>()({
   include: {
     traitements: {
       include: {
-        listeMedicaments: true,
+        medicaments: true,
       },
     },
   },
 });
 
-export type AnimauxWithRelations = Prisma.AnimauxGetPayload<
+export type AnimauxWithRelations = Prisma.AnimalGetPayload<
   typeof animalWithRelationsArgs
 >;

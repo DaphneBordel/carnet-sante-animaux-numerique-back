@@ -32,7 +32,7 @@ export class TraitementService {
       // Création du traitement
       const newTraitement = await tx.traitement.create({
         data: {
-          animauxId: animal.id,
+          animalId: animal.id,
         },
       });
 
@@ -55,7 +55,7 @@ export class TraitementService {
       const traitementWithRelations = await tx.traitement.findUnique({
         where: { id: newTraitement.id },
         include: {
-          animaux: true, // inclut les infos de l'animal
+          animal: true, // inclut les infos de l'animal
           medicaments: true, // inclut les médicaments
         },
       });

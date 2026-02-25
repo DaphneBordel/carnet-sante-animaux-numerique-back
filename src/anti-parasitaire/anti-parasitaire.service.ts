@@ -28,8 +28,10 @@ export class AntiParasitaireService {
         date: dto.date,
         nom: dto.nom,
         qtite: dto.qtité,
-        dateRappel: dto.dateRappel?
-      }
-    })
+        dateRappel: dto.dateRappel ? dto.dateRappel : null,
+        animalId: dto.animalId,
+      },
+    });
+    return antiParasitaire;
   }
 }
