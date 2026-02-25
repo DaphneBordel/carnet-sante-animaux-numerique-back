@@ -76,4 +76,38 @@ export class VermifugeService {
       },
     });
   }
+
+  async deleteVermifuge(
+    userId: number | undefined,
+    vermifugeId: number,
+    animalId: number,
+  ) {
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    //vérifie que l'animal appartient à ce user
+    await this.ownershipService.verifyAnimalOwnership(userId, animalId);
+
+    // Vérifie que le vermifuge appartient à cet animal
+    const vermifuge = await this.prismaService.vermifuge.findFirst({
+      where: {
+        id: vermifugeId,
+        animalId: animalId,
+      },
+    });
+
+    if (!vermifuge) {
+      throw new NotFoundException('Vermifuge not found');
+    }
+
+    // Suppression
+    await this.prismaService.vermifuge.delete({
+      where: { id: vermifugeId },
+    });
+
+    return { message: 'Vermifuge deleted successfully' };
+  }
 }

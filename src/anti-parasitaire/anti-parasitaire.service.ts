@@ -76,4 +76,38 @@ export class AntiParasitaireService {
       },
     });
   }
+
+  async deleteAntiParasitaire(
+    userId: number | undefined,
+    antiParaId: number,
+    animalId: number,
+  ) {
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    //vérifie que l'animal appartient à ce user
+    await this.ownershipService.verifyAnimalOwnership(userId, animalId);
+
+    // Vérifie que l'anti-parasitaire appartient à cet animal
+    const antiparasitaire = await this.prismaService.antiparasitaire.findFirst({
+      where: {
+        id: antiParaId,
+        animalId: animalId,
+      },
+    });
+
+    if (!antiparasitaire) {
+      throw new NotFoundException('Antiparasitaire not found');
+    }
+
+    // Suppression
+    await this.prismaService.antiparasitaire.delete({
+      where: { id: antiParaId },
+    });
+
+    return { message: 'Antiparasitaire deleted successfully' };
+  }
 }

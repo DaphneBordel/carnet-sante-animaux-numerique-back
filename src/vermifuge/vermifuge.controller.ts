@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Post,
   Put,
@@ -30,5 +31,14 @@ export class VermifugeController {
     @Body() dto: UpdateVermifugeDto,
   ) {
     return this.vermifugeService.updateVermifuge(req.user?.sub, id, dto);
+  }
+
+  @Delete(':id')
+  deleteVermifuge(
+    @Param('id') id: number,
+    @Req() req: RequestWithUser,
+    @Body() animalId: number,
+  ) {
+    return this.vermifugeService.deleteVermifuge(req.user?.sub, id, animalId);
   }
 }

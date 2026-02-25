@@ -73,4 +73,38 @@ export class VaccinService {
       },
     });
   }
+
+  async deleteVaccin(
+    userId: number | undefined,
+    vaccinId: number,
+    animalId: number,
+  ) {
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+    //vérifie que l'animal appartient à ce user
+    await this.ownershipService.verifyAnimalOwnership(userId, animalId);
+
+    // Vérifie que le vaccin appartient à cet animal
+    const vaccin = await this.prismaService.vaccin.findFirst({
+      where: {
+        id: vaccinId,
+        animalId: animalId,
+      },
+    });
+
+    if (!vaccin) {
+      throw new NotFoundException('Vaccin not found');
+    }
+
+    // Suppression
+    await this.prismaService.vaccin.delete({
+      where: { id: vaccinId },
+    });
+
+    return { message: 'Vaccin deleted successfully' };
+  }
 }
