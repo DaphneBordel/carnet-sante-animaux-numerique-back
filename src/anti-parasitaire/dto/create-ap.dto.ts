@@ -3,7 +3,7 @@ import { IsDateString, IsNumber, IsString } from 'class-validator';
 
 export class CreateAntiParaDto {
   @IsDateString()
-  date: Date;
+  date?: Date;
 
   @IsString()
   nom: string;
@@ -11,6 +11,9 @@ export class CreateAntiParaDto {
   @Type(() => Number) // 🔥 obligatoire
   @IsNumber({ maxDecimalPlaces: 2 })
   qtité: number;
+
+  @IsDateString()
+  dateRappel?: Date;
 
   animalId: number;
 }

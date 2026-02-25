@@ -32,9 +32,7 @@ export class TraitementService {
       // Création du traitement
       const newTraitement = await tx.traitement.create({
         data: {
-          dateDebut: new Date(dtoTraitement.dateDebut),
-          dateFin: new Date(dtoTraitement.dateFin),
-          animal: { connect: { id: animal.id } },
+          animauxId: animal.id,
         },
       });
 
@@ -44,9 +42,10 @@ export class TraitementService {
           tx.medicament.create({
             data: {
               nom: med.nom,
-              dosage: med.dosage,
-              nbJour: med.nbJour,
+              posologie: med.posologie,
               traitementId: newTraitement.id,
+              dateDebut: med.dateDebut,
+              dateFin: med.dateFin,
             },
           }),
         ),
@@ -56,8 +55,8 @@ export class TraitementService {
       const traitementWithRelations = await tx.traitement.findUnique({
         where: { id: newTraitement.id },
         include: {
-          animal: true, // inclut les infos de l'animal
-          listeMedicaments: true, // inclut les médicaments
+          animaux: true, // inclut les infos de l'animal
+          medicaments: true, // inclut les médicaments
         },
       });
 

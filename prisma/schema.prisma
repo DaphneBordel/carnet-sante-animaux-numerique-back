@@ -29,13 +29,13 @@ model animaux {
 }
 
 model antiparasitaire {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
+  id         Int       @id @default(autoincrement())
+  date       DateTime  @default(now())
   nom        String
   qtite      Float
-  dateRappel DateTime
+  dateRappel DateTime?
   animauxId  Int
-  animaux    animaux  @relation(fields: [animauxId], references: [id], map: "Antiparasitaire_animauxId_fkey")
+  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Antiparasitaire_animauxId_fkey")
 
   @@index([animauxId], map: "Antiparasitaire_animauxId_fkey")
 }
@@ -43,9 +43,10 @@ model antiparasitaire {
 model medicament {
   id           Int        @id @default(autoincrement())
   nom          String
-  dosage       String
-  nbJour       Int
   traitementId Int
+  dateDebut    DateTime
+  dateFin      DateTime
+  posologie    String
   traitement   traitement @relation(fields: [traitementId], references: [id], map: "Medicament_traitementId_fkey")
 
   @@index([traitementId], map: "Medicament_traitementId_fkey")
@@ -64,9 +65,7 @@ model poids {
 model traitement {
   id         Int          @id @default(autoincrement())
   animauxId  Int
-  dateDebut  DateTime?
-  dateFin    DateTime?
-  medicament medicament[]
+  medicaments medicament[]
   animaux    animaux      @relation(fields: [animauxId], references: [id], map: "Traitement_animauxId_fkey")
 
   @@index([animauxId], map: "Traitement_animauxId_fkey")
@@ -81,25 +80,25 @@ model user {
 }
 
 model vaccin {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
+  id         Int       @id @default(autoincrement())
+  date       DateTime  @default(now())
   nom        String
   qtite      Float
-  dateRappel DateTime
+  dateRappel DateTime?
   animauxId  Int
-  animaux    animaux  @relation(fields: [animauxId], references: [id], map: "Vaccin_animauxId_fkey")
+  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Vaccin_animauxId_fkey")
 
   @@index([animauxId], map: "Vaccin_animauxId_fkey")
 }
 
 model vermifuge {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
+  id         Int       @id @default(autoincrement())
+  date       DateTime  @default(now())
   nom        String
   qtite      Float
-  dateRappel DateTime
+  dateRappel DateTime?
   animauxId  Int
-  animaux    animaux  @relation(fields: [animauxId], references: [id], map: "Vermifuge_animauxId_fkey")
+  animaux    animaux   @relation(fields: [animauxId], references: [id], map: "Vermifuge_animauxId_fkey")
 
   @@index([animauxId], map: "Vermifuge_animauxId_fkey")
 }

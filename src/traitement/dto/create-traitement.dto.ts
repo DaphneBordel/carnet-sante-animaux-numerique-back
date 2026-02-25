@@ -5,19 +5,16 @@ export class CreateMedicamentDto {
   nom: string;
 
   @IsString()
-  dosage: string;
+  posologie: string;
 
-  @IsInt()
-  nbJour: number;
-}
-
-export class CreateTraitementDto {
   @IsDateString()
   dateDebut: Date;
 
   @IsDateString()
   dateFin: Date;
+}
 
+export class CreateTraitementDto {
   listeMedicaments: CreateMedicamentDto[];
 
   @IsInt()
