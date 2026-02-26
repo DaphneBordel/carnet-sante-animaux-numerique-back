@@ -42,7 +42,8 @@ export class AuthService {
   async login(
     dto: LoginDto,
     res: Response,
-  ): Promise<{ user: Omit<User, 'password'> }> {
+  ): Promise<{ user: Omit<User, 'password'>, token: string }> {
+    console.log('dans le login service', dto);
     const user = await this.prismaService.user.findUnique({
       where: { email: dto.email },
     });
@@ -64,27 +65,32 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync(payload);
 
-    // 🍪 Cookie sécurisé
-    res.cookie('access_token', accessToken, {
+    // Cookie sécurisé pour le web
+    /*res.cookie('access_token', accessToken, {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24, // 1 jour
-    });
+    });*/
 
+    //Pour l'application mobile on renvoie le token dans le response.data
     const { password, ...safeUser } = user;
     console.log('on retire le password avant envoi', password);
     return {
       user: safeUser,
+      token: accessToken,
     };
   }
 
   logout(res: Response) {
-    res.clearCookie('access_token', {
+    // pour le web suppression des cookie
+    /*res.clearCookie('access_token', {
       httpOnly: true,
       path: '/',
       sameSite: 'lax',
-    });
+    });*/
+
+    //pour l'application mobile
     return { status: 'success', message: 'Déconnecter avec succès' };
   }
 }

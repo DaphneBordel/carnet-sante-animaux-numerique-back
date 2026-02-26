@@ -13,6 +13,7 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    console.log('dto in login controller', dto);
     return this.authService.login(dto, res);
   }
 
