@@ -1,26 +1,44 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Animal, Medicament } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+
+type RappelType = 'vaccin' | 'antiparasitaire' | 'vermifuge';
+
+type Rappel = {
+  type: RappelType;
+  nom: string;
+  dateRappel: Date | null;
+};
+
+type PreventionGroup = {
+  animal: Animal;
+  rappels: Rappel[];
+};
+
+type TraitementGroup = {
+  animal: Animal;
+  medicaments: Medicament[];
+};
 
 @Injectable()
 export class DashboardService {
   constructor(private prismaService: PrismaService) {}
 
   async getDashboard(userId: number | undefined) {
-    if (!userId) throw new NotFoundException('User is required');
-
     const today = new Date();
-    const nextMonth = new Date();
-    nextMonth.setMonth(today.getMonth() + 1);
-    console.log('nextMonth', nextMonth);
 
-    const medicamentsEnCours = await this.prismaService.medicament.findMany({
+    if (!userId) throw new ForbiddenException(`L'utilisateur est requis`);
+    // ============================
+    // 1. TRAITEMENTS EN COURS
+    // ============================
+
+    const medicaments = await this.prismaService.medicament.findMany({
       where: {
         traitement: {
           animal: {
-            userId: userId,
+            userId,
           },
         },
-        //date de fin >= aujourd'hui
         dateFin: { gte: today },
       },
       include: {
@@ -32,64 +50,87 @@ export class DashboardService {
       },
     });
 
-    // Regroupement par animal
-    const groupedByAnimal = medicamentsEnCours.reduce(
-      (acc, medicament) => {
-        const animal = medicament.traitement.animal;
+    const traitementsMap = new Map<number, TraitementGroup>();
 
-        const existingAnimal = acc.find((a) => a.animal.id === animal.id);
+    for (const med of medicaments) {
+      const animal = med.traitement.animal;
 
-        if (existingAnimal) {
-          existingAnimal.medicaments.push(medicament);
-        } else {
-          acc.push({
-            animal,
-            medicaments: [medicament],
-          });
-        }
+      if (!traitementsMap.has(animal.id)) {
+        traitementsMap.set(animal.id, {
+          animal,
+          medicaments: [],
+        });
+      }
 
-        return acc;
-      },
-      [] as {
-        animal: (typeof medicamentsEnCours)[number]['traitement']['animal'];
-        medicaments: typeof medicamentsEnCours;
-      }[],
+      traitementsMap.get(animal.id)!.medicaments.push(med);
+    }
+
+    const traitementsEnCours = Array.from(traitementsMap.values());
+
+    // ============================
+    // 2️. PREVENTIONS
+    // ============================
+
+    const [vaccins, antiparasitaires, vermifuges] = await Promise.all([
+      this.prismaService.vaccin.findMany({
+        where: { animal: { userId } },
+        include: { animal: true },
+      }),
+      this.prismaService.antiparasitaire.findMany({
+        where: { animal: { userId } },
+        include: { animal: true },
+      }),
+      this.prismaService.vermifuge.findMany({
+        where: { animal: { userId } },
+        include: { animal: true },
+      }),
+    ]);
+
+    const preventionMap = new Map<number, PreventionGroup>();
+    const addRappel = (animal: Animal, rappel: Rappel) => {
+      if (!preventionMap.has(animal.id)) {
+        preventionMap.set(animal.id, {
+          animal,
+          rappels: [],
+        });
+      }
+
+      preventionMap.get(animal.id)!.rappels.push(rappel);
+    };
+
+    vaccins.forEach((v) =>
+      addRappel(v.animal, {
+        type: 'vaccin',
+        nom: v.nom,
+        dateRappel: v.dateRappel,
+      }),
     );
 
-    const vermifuges = await this.prismaService.vermifuge.findMany({
-      where: {
-        animal: { userId },
-        //date de rappel >= aujourd'hui et <= à dans un mois
-        dateRappel: { gte: today, lte: nextMonth },
-      },
-      include: { animal: true },
-    });
+    antiparasitaires.forEach((a) =>
+      addRappel(a.animal, {
+        type: 'antiparasitaire',
+        nom: a.nom,
+        dateRappel: a.dateRappel,
+      }),
+    );
 
-    const vaccins = await this.prismaService.vermifuge.findMany({
-      where: {
-        animal: { userId },
-        //date de rappel >= aujourd'hui et <= à dans un mois
-        dateRappel: { gte: today, lte: nextMonth },
-      },
-      include: { animal: true },
-    });
+    vermifuges.forEach((v) =>
+      addRappel(v.animal, {
+        type: 'vermifuge',
+        nom: v.nom,
+        dateRappel: v.dateRappel,
+      }),
+    );
 
-    const antiparasitaires = await this.prismaService.vermifuge.findMany({
-      where: {
-        animal: { userId },
-        //date de rappel >= aujourd'hui et <= à dans un mois
-        dateRappel: { gte: today, lte: nextMonth },
-      },
-      include: { animal: true },
-    });
+    const preventions = Array.from(preventionMap.values());
+
+    // ============================
+    // 3. Onglets 'Traitements en cours' et 'Préventions' triés par animal
+    // ============================
 
     return {
-      groupedByAnimal,
-      rappelsAVenir: {
-        vermifuges,
-        vaccins,
-        antiparasitaires,
-      },
+      traitementsEnCours,
+      preventions,
     };
   }
 }
