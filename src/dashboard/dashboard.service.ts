@@ -26,6 +26,8 @@ export class DashboardService {
 
   async getDashboard(userId: number | undefined) {
     const today = new Date();
+    const nextMonth = new Date();
+    nextMonth.setMonth(today.getMonth() + 1);
 
     if (!userId) throw new ForbiddenException(`L'utilisateur est requis`);
     // ============================
@@ -73,19 +75,37 @@ export class DashboardService {
 
     const [vaccins, antiparasitaires, vermifuges] = await Promise.all([
       this.prismaService.vaccin.findMany({
-        where: { animal: { userId } },
+        where: {
+          animal: { userId },
+          dateRappel: {
+            gte: today,
+            lte: nextMonth,
+          },
+        },
         include: { animal: true },
       }),
       this.prismaService.antiparasitaire.findMany({
-        where: { animal: { userId } },
+        where: {
+          animal: { userId },
+          dateRappel: {
+            gte: today,
+            lte: nextMonth,
+          },
+        },
         include: { animal: true },
       }),
       this.prismaService.vermifuge.findMany({
-        where: { animal: { userId } },
+        where: {
+          animal: { userId },
+          dateRappel: {
+            gte: today,
+            lte: nextMonth,
+          },
+        },
         include: { animal: true },
       }),
     ]);
-
+    
     const preventionMap = new Map<number, PreventionGroup>();
     const addRappel = (animal: Animal, rappel: Rappel) => {
       if (!preventionMap.has(animal.id)) {
@@ -113,7 +133,7 @@ export class DashboardService {
         dateRappel: a.dateRappel,
       }),
     );
-
+    console.log('antiparasitaires', antiparasitaires);
     vermifuges.forEach((v) =>
       addRappel(v.animal, {
         type: 'vermifuge',

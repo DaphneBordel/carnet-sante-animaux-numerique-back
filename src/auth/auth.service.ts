@@ -62,9 +62,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
     };
-
     const accessToken = await this.jwtService.signAsync(payload);
-
     // Cookie sécurisé pour le web
     /*res.cookie('access_token', accessToken, {
       httpOnly: true,
