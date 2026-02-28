@@ -40,4 +40,29 @@ export class PoidsAnimalService {
       throw new BadRequestException('An error occured when poids is created');
     return poids;
   }
+
+  async getPoidsAnimal(
+    userId: number | undefined,
+    animalId: number | undefined,
+  ) {
+    if (!userId) throw new ForbiddenException('user is required');
+
+    if (!animalId) throw new ForbiddenException('animalId is required');
+
+    await this.ownershipService.verifyUserExists(userId);
+
+    await this.ownershipService.verifyAnimalOwnership(userId, animalId);
+
+    const poids: Poids[] = await this.prismaService.poids.findMany({
+      where: {
+        animal: {
+          id: animalId,
+          userId: userId,
+        },
+      },
+    });
+    if (!poids)
+      throw new BadRequestException('An error occured when getting "poids"');
+    return poids;
+  }
 }
