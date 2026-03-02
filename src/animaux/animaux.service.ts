@@ -25,6 +25,51 @@ export enum GenreAnimal {
   MALE = 'MALE',
 }
 
+//fonction pour regrouper les antiparasitaires, vaccins et vermifuges par année
+function groupByYear<T>(items: T[], dateKey: keyof T) {
+  return items.reduce(
+    (acc, item) => {
+      const date = new Date(item[dateKey] as unknown as string);
+      const year = date.getFullYear();
+
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+
+      acc[year].push(item);
+
+      return acc;
+    },
+    {} as Record<number, T[]>,
+  );
+}
+
+//détermine la date de référence d'un traitement
+function getTraitementDate(traitement) {
+  if (!traitement.medicaments.length) return null;
+
+  return traitement.medicaments.reduce((latest, med) => {
+    return med.dateDebut > latest ? med.dateDebut : latest;
+  }, traitement.medicaments[0].dateDebut);
+}
+//fonction pour trier les traitements par année
+function groupTraitementsByYear(traitements) {
+  return traitements.reduce((acc, traitement) => {
+    const date = getTraitementDate(traitement);
+    if (!date) return acc;
+
+    const year = date.getFullYear();
+
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+
+    acc[year].push(traitement);
+
+    return acc;
+  }, {});
+}
+
 @Injectable()
 export class AnimauxService {
   constructor(
@@ -89,10 +134,7 @@ export class AnimauxService {
     return animaux;
   }
 
-  async getAnimalByIdWithRelations(
-    id: number | undefined,
-    animalId: string,
-  ): Promise<AnimauxWithRelations> {
+  async getAnimalByIdWithRelations(id: number | undefined, animalId: string) {
     if (!id) throw new NotFoundException('User is undefined');
 
     const user = await this.prismaService.user.findUnique({
@@ -117,11 +159,28 @@ export class AnimauxService {
     const existingAnimaux = user.animaux.find(
       (animal) => animal.id === parseInt(animalId),
     );
+
     if (!existingAnimaux)
       throw new NotFoundException(
         `L'animal n'existe pas ou n'appartient pas à cet utilisateur`,
       );
-    return existingAnimaux;
+
+    existingAnimaux.traitements.sort((a, b) => {
+      const dateA = getTraitementDate(a);
+      const dateB = getTraitementDate(b);
+
+      if (!dateA || !dateB) return 0;
+
+      return dateB.getTime() - dateA.getTime(); // décroissant
+    });
+
+    return {
+      ...existingAnimaux,
+      traitements: groupTraitementsByYear(existingAnimaux.traitements),
+      antiparasitaires: groupByYear(existingAnimaux.antiparasitaires, 'date'),
+      vermifuges: groupByYear(existingAnimaux.vermifuges, 'date'),
+      vaccins: groupByYear(existingAnimaux.vaccins, 'date'),
+    };
   }
   //récupère l'animal sans ses relations (traitements, vermifuges, etc.)
   async getAnimalById(

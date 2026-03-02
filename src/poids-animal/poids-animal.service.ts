@@ -20,6 +20,7 @@ export class PoidsAnimalService {
     id: number | undefined,
     dto: CreatePoidsDto,
   ): Promise<Poids> {
+    console.log('je rentre dans addPoidsAnimal', dto);
     //on recherche si l'utilisateur existe et si l'animal lui appartient bien
     if (!id) throw new ForbiddenException('User not authorized');
 
@@ -61,6 +62,7 @@ export class PoidsAnimalService {
         },
       },
     });
+    console.log('poids', poids);
     if (!poids)
       throw new BadRequestException('An error occured when getting "poids"');
     return poids;
