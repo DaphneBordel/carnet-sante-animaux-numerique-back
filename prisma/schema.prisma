@@ -20,11 +20,11 @@ model Animal {
   userId          Int
   couleur         String?
   user            User              @relation(fields: [userId], references: [id])
-  antiparasitaires Antiparasitaire[]
-  poids           Poids[]
-  traitements      Traitement[]
-  vaccins         Vaccin[]
-  vermifuges       Vermifuge[]
+  antiparasitaires Antiparasitaire[]?
+  poids           Poids[]?
+  traitements     Traitement[]?
+  vaccins         Vaccin[]?
+  vermifuges       Vermifuge[]?
 }
 
 model Antiparasitaire {

@@ -35,7 +35,7 @@ export class AuthService {
         password: hashedPassword,
       },
     });
-    console.log('user created', user);
+    console.log('User created', user);
     return { message: 'User created', userId: user.id };
   }
 
@@ -43,7 +43,6 @@ export class AuthService {
     dto: LoginDto,
     res: Response,
   ): Promise<{ user: Omit<User, 'password'>, token: string }> {
-    console.log('dans le login service', dto);
     const user = await this.prismaService.user.findUnique({
       where: { email: dto.email },
     });
@@ -53,7 +52,7 @@ export class AuthService {
     }
 
     const passwordValid = await bcrypt.compare(dto.password, user.password);
-    console.log('passwordValid', passwordValid);
+
     if (!passwordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -73,7 +72,6 @@ export class AuthService {
 
     //Pour l'application mobile on renvoie le token dans le response.data
     const { password, ...safeUser } = user;
-    console.log('on retire le password avant envoi', password);
     return {
       user: safeUser,
       token: accessToken,

@@ -25,25 +25,30 @@ export class CreateAnimauxDto {
 
   type: TypeAnimal;
 
+  @IsOptional()
   @IsString()
   espece: string;
 
+  @IsOptional()
   @IsString()
   couleur: string;
 
-  @Type(() => Number) // 🔥 obligatoire
+  @IsOptional()
+  @Type(() => Number) // obligatoire
   @IsNumber({ maxDecimalPlaces: 2 })
-  poids: number;
+  poids?: number;
 
   @IsString()
   image: string;
 
+  @IsOptional()
   @IsString()
   icad: string;
 
+  @IsOptional()
   @IsString()
   pbSante: string;
 
   @IsOptional()
-  genre?: Genre;
+  genre: Genre;
 }

@@ -21,7 +21,6 @@ export class AuthGuard implements CanActivate {
     }
     const [type, token] = authHeader.split(' ');
     if (type !== 'Bearer' || !token) {
-      console.log('on rentre dans le deuxième if');
       throw new UnauthorizedException('Invalid Authorization format');
     }
     try {
@@ -31,7 +30,7 @@ export class AuthGuard implements CanActivate {
       request.user = payload;
       return true;
     } catch (error) {
-      console.log('error', error);
+      console.log('Error AuthGuard canActivate', error);
       request.statusCode = 401;
       request.statusMessage = 'token invalid';
       throw new ForbiddenException('Invalid token or expired');

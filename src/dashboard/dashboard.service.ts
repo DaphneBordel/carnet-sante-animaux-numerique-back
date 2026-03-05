@@ -105,7 +105,7 @@ export class DashboardService {
         include: { animal: true },
       }),
     ]);
-    
+
     const preventionMap = new Map<number, PreventionGroup>();
     const addRappel = (animal: Animal, rappel: Rappel) => {
       if (!preventionMap.has(animal.id)) {
@@ -133,7 +133,6 @@ export class DashboardService {
         dateRappel: a.dateRappel,
       }),
     );
-    console.log('antiparasitaires', antiparasitaires);
     vermifuges.forEach((v) =>
       addRappel(v.animal, {
         type: 'vermifuge',

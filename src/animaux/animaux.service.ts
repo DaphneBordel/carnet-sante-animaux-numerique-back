@@ -7,8 +7,8 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAnimauxDto } from './dto/create.dto';
 import { Animal } from '@prisma/client';
-import { AnimauxWithRelations } from './interface/animal.interface';
 import { OwnershipService } from 'src/common/validators/ownership.service';
+import { UpdateAnimauxDto } from './dto/update.dto';
 
 export enum TypeAnimal {
   CHIEN = 'CHIEN',
@@ -81,7 +81,8 @@ export class AnimauxService {
     id: number | undefined,
     dtoAnimal: CreateAnimauxDto,
   ): Promise<Animal> {
-    console.log('id', id);
+    console.log('user Id', id);
+    console.log(typeof id);
     if (!id) throw new ForbiddenException('User not exist');
 
     //On vérifie si l'utilisateur existe
@@ -89,37 +90,46 @@ export class AnimauxService {
 
     //On créait l'animal
     const animal = await this.prismaService.$transaction(async (tx) => {
+      console.log("j'entre dans la transaction");
       const animalCreate: Animal = await tx.animal.create({
         data: {
+          userId: id,
           nom: dtoAnimal?.nom,
           dateNaissance: new Date(dtoAnimal?.dateNaissance),
-          type: TypeAnimal[dtoAnimal.type],
+          type: dtoAnimal.type ? TypeAnimal[dtoAnimal.type] : 'CHIEN',
           espece: dtoAnimal.espece,
           couleur: dtoAnimal.couleur,
           icad: dtoAnimal.icad,
           image: dtoAnimal.image,
           pbSante: dtoAnimal.pbSante,
-          userId: id,
-          genre: dtoAnimal.genre ? GenreAnimal[dtoAnimal.genre] : null,
+          genre: dtoAnimal.genre ? GenreAnimal[dtoAnimal.genre] : 'MALE',
         },
       });
-      if (!animalCreate)
+      console.log('animalCreate', animalCreate);
+      if (!animalCreate) {
+        console.log('bad request animalCreate');
         throw new BadRequestException(
           `Une erreur est survenue lors de la création [animalCreate error]`,
         );
+      }
+      if (dtoAnimal.poids) {
+        await tx.poids.create({
+          data: {
+            kilo: dtoAnimal?.poids,
+            animalId: animalCreate.id,
+          },
+        });
+      }
 
-      await tx.poids.create({
-        data: {
-          kilo: dtoAnimal?.poids,
-          animalId: animalCreate.id,
-        },
-      });
       return animalCreate;
     });
-    if (!animal)
+    console.log('animal', animal);
+    if (!animal) {
+      console.log('bad request');
       throw new BadRequestException(
         `Une erreur est survenue lors de la création [transaction error]`,
       );
+    }
     return animal;
   }
 
@@ -197,5 +207,87 @@ export class AnimauxService {
       parseInt(animalId),
     );
     return animal;
+  }
+
+  async updateAnimalById(
+    id: number | undefined,
+    animalId: number,
+    dto: UpdateAnimauxDto,
+    file: Express.Multer.File,
+  ) {
+    if (!id) throw new ForbiddenException('User not exist');
+
+    //On vérifie si l'utilisateur existe
+    await this.ownershipService.verifyUserExists(id);
+    //On vérifie si l'animal appartient à l'utilisateur
+    await this.ownershipService.verifyAnimalOwnership(id, animalId);
+
+    const updateData = { ...dto };
+
+    if (file) {
+      // Ici tu peux sauvegarder l'image localement ou sur Cloud et stocker l'URL
+      // Par exemple pour tester : animal.image = file.filename ou file.path
+      updateData.image = file.path || file.filename;
+    }
+
+    return this.prismaService.animal.update({
+      where: { id: animalId },
+      data: updateData,
+    });
+  }
+
+  async updateAnimalImage(
+    id: number | undefined,
+    animalId: string | undefined,
+    file: Express.Multer.File,
+  ) {
+    if (!id) throw new ForbiddenException('User not exist');
+
+    if (!animalId) throw new ForbiddenException('Animal not exist');
+    //On vérifie si l'utilisateur existe
+    await this.ownershipService.verifyUserExists(id);
+    //On vérifie si l'animal appartient à l'utilisateur
+    await this.ownershipService.verifyAnimalOwnership(id, parseInt(animalId));
+
+    const imageUrl = `uploads/${file.filename}`;
+
+    return this.prismaService.animal.update({
+      where: { id: Number(id) },
+      data: { image: imageUrl },
+    });
+  }
+
+  async deleteAnimalByIdWithRelations(
+    userId: number | undefined,
+    animalId: string,
+  ) {
+    if (!userId) throw new ForbiddenException('User not exist');
+
+    if (!animalId) throw new ForbiddenException('Animal not exist');
+
+    //On vérifie si l'utilisateur existe
+    await this.ownershipService.verifyUserExists(userId);
+    //On vérifie si l'animal appartient à l'utilisateur
+    await this.ownershipService.verifyAnimalOwnership(
+      userId,
+      parseInt(animalId),
+    );
+
+    try {
+      await this.prismaService.animal.delete({
+        where: {
+          id: Number(animalId),
+        },
+        include: {
+          traitements: true,
+          vermifuges: true,
+          antiparasitaires: true,
+          vaccins: true,
+        },
+      });
+    } catch (err) {
+      console.log('error delete animal', err);
+      throw new BadRequestException('Animal delete error');
+    }
   }
 }

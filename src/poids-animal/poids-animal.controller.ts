@@ -19,7 +19,6 @@ export class PoidsAnimalController {
 
   @Post()
   addPoidsAnimal(@Req() req: RequestWithUser, @Body() dto: CreatePoidsDto) {
-    console.log('dto in controller', dto);
     return this.poidsAnimalService.addPoidsAnimal(req.user?.sub, dto);
   }
 
