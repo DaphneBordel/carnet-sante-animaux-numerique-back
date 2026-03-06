@@ -10,10 +10,29 @@ import { PoidsAnimalModule } from './poids-animal/poids-animal.module';
 import { VaccinModule } from './vaccin/vaccin.module';
 import { VermifugeModule } from './vermifuge/vermifuge.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { OcrModule } from './ocr/ocr.module';
+import { MedicamentController } from './medicament/medicament.controller';
+import { MedicamentModule } from './medicament/medicament.module';
+import { FuseModule } from './fuse/fuse.module';
+import { ParseOrdonnanceModule } from './parse-ordonnance/parse-ordonnance.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, AnimauxModule, TraitementModule, AntiParasitaireModule, PoidsAnimalModule, VaccinModule, VermifugeModule, DashboardModule],
-  controllers: [AppController],
+  imports: [
+    AuthModule,
+    PrismaModule,
+    AnimauxModule,
+    TraitementModule,
+    AntiParasitaireModule,
+    PoidsAnimalModule,
+    VaccinModule,
+    VermifugeModule,
+    DashboardModule,
+    OcrModule,
+    MedicamentModule,
+    FuseModule,
+    ParseOrdonnanceModule,
+  ],
+  controllers: [AppController, MedicamentController],
   providers: [AppService],
 })
 export class AppModule {}
