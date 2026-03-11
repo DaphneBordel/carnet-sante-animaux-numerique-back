@@ -1,5 +1,9 @@
 // parse-ordonnance.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FuseService } from 'src/fuse/fuse.service';
 import {
   MedicamentApi,
@@ -13,15 +17,28 @@ export interface ParsedTraitement {
 }
 
 export interface GroupedMedicamentApi {
+  word: string;
+  description: string;
+  duree: string | null;
+  liste: ListGroupedMedicamentApi[];
+}
+
+export interface ListGroupedMedicamentApi {
   id: number;
   nom: string;
-  description: string;
-  word: string;
 }
 
 interface MedBlock {
   medicament: string;
   description: string;
+  duree: string;
+}
+
+interface MedGrouped {
+  nom: string;
+  description: string;
+  duree: string | null;
+  liste: MedicamentApi[];
 }
 
 @Injectable()
@@ -31,56 +48,153 @@ export class ParseOrdonnanceService {
     private readonly medicamentService: MedicamentService,
   ) {}
 
-  cleanText(text: string): string {
-    return text
-      .replace(/\n/g, ' ')
-      .replace(/_/g, ' ')
-      .replace(/\s+/g, ' ')
-      .toUpperCase()
-      .trim();
-  }
-
-  extractMedBlocks(text: string): MedBlock[] {
+  async extractMedBlocks(text: string): Promise<MedBlock[] | undefined> {
     const lines = text
       .split('\n')
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
 
+    let listeMedicaments: MedicamentApi[] | null;
+
+    try {
+      listeMedicaments = await this.medicamentService.fetchMedicaments();
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+
+    if (!listeMedicaments) return undefined;
+    const medKeywords = listeMedicaments.map((m) =>
+      m.nom.split(' ')[0].toUpperCase(),
+    );
+
+    const regexDuration = /\d+\s*(jours?|semaines?|mois)/gi;
+    const regexNumberedMed = /^\s*(\d+|[IVX]+)\s*[\.\)\/]\s*([A-Z0-9\-]+)/i;
+    const regexSectionStop = /^[A-ZÉÈÀÂÊÎÔÛÄËÏÖÜÇ][A-Za-zÀ-ÿ\s]+:/;
+
     const results: MedBlock[] = [];
 
     let currentMed: string | null = null;
-    let currentDesc: string[] = [];
+    let descriptionLines: string[] = [];
+    let capturingPosologie = false;
 
-    for (const line of lines) {
-      // détecte "1 ) MEDICAMENT"
-      const medMatch = line.match(/^\d+\s*\)?\s*(.+)$/);
+    const finalizeBlock = () => {
+      if (!currentMed) return;
 
-      if (medMatch) {
-        if (currentMed) {
-          results.push({
-            medicament: currentMed,
-            description: currentDesc.join(' '),
-          });
+      const description = descriptionLines.join(' ').trim();
+
+      const durations = [...description.matchAll(regexDuration)].map(
+        (m) => m[0],
+      );
+
+      const duree = durations.join(', ');
+
+      results.push({
+        medicament: currentMed,
+        description,
+        duree,
+      });
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const upperLine = line.toUpperCase();
+
+      let detectedMed: string | null = null;
+
+      // --- règle 1 : numérotation
+      const numberedMatch = line.match(regexNumberedMed);
+
+      if (numberedMatch) {
+        detectedMed = numberedMatch[2];
+      }
+
+      // --- règle 2 : médicament présent dans l'API
+      if (!detectedMed) {
+        const words = upperLine.split(/\s+/);
+        const found = words.find((w) => medKeywords.includes(w));
+        if (found) detectedMed = found;
+      }
+
+      if (detectedMed) {
+        finalizeBlock();
+
+        currentMed = detectedMed;
+        descriptionLines = [];
+        capturingPosologie = false;
+
+        continue;
+      }
+
+      // --- règle 4 : mot Posologie
+      if (/POSOLOGIE/i.test(line)) {
+        capturingPosologie = true;
+        continue;
+      }
+
+      if (currentMed) {
+        if (regexSectionStop.test(line)) {
+          finalizeBlock();
+          currentMed = null;
+          descriptionLines = [];
+          capturingPosologie = false;
+          continue;
         }
 
-        currentMed = medMatch[1];
-        currentDesc = [];
-      } else if (currentMed) {
-        currentDesc.push(line);
+        if (capturingPosologie || descriptionLines.length >= 0) {
+          descriptionLines.push(line);
+        }
       }
     }
 
-    if (currentMed) {
-      results.push({
-        medicament: currentMed,
-        description: currentDesc.join(' '),
-      });
-    }
+    finalizeBlock();
 
     return results;
   }
 
-  async parse(parseText: { medicament: string; description: string }[]) {
+  grouped(
+    medFound: {
+      word: string;
+      id: number;
+      nom: string;
+      duree: string;
+      description: string;
+    }[],
+  ): GroupedMedicamentApi[] {
+    const groupedBlock: GroupedMedicamentApi[] = [];
+    medFound.map((med, i) => {
+      if (i === 0) {
+        groupedBlock.push({
+          word: med.word,
+          duree: med.duree,
+          description: med.description,
+          liste: [{ id: med.id, nom: med.nom }],
+        });
+      } else {
+        let elementExist = false;
+        groupedBlock.map((gr, j) => {
+          //si le médicament existe déjà dans groupedBlock on rajoute uniquement le nom du médicament trouvé à la liste des possibles.
+          if (gr.word === med.word) {
+            gr.liste.push({ id: med.id, nom: med.nom });
+            elementExist = true;
+          }
+          //on arrive au bout du groupedBlock et on n'a pas trouvé de médicament ayant le même nom : on rajoute un nouveau médicament à groupedBlock
+          if (j === groupedBlock.length - 1 && !elementExist) {
+            groupedBlock.push({
+              word: med.word,
+              duree: med.duree,
+              description: med.description,
+              liste: [{ id: med.id, nom: med.nom }],
+            });
+          }
+        });
+      }
+    });
+    return groupedBlock;
+  }
+
+  async parse(
+    parseText: { medicament: string; description: string; duree: string }[],
+  ) {
     // Requêter les médicaments vétérinaires référencés par l'API
     const listeMedicaments: MedicamentApi[] | null =
       await this.medicamentService.fetchMedicaments();
@@ -89,8 +203,17 @@ export class ParseOrdonnanceService {
         'Liste de médicaments du dictionnaire non trouvé',
       );
     // Trouver les médicaments dans le texte ocr scanné
-    const medFound: GroupedMedicamentApi[] = [];
-    parseText.map((text) => {
+    const medFound: {
+      word: string;
+      id: number;
+      nom: string;
+      description: string;
+      duree: string;
+    }[] = [];
+    //console.log('parseTextTemp', parseTextTemp);
+    parseText.map((text, i) => {
+      //console.log('text', text);
+      let elementIsAdding = false;
       listeMedicaments.filter((el) => {
         if (text.medicament.split(' ').includes(el.nom.split(' ')[0])) {
           const newData: {
@@ -98,72 +221,33 @@ export class ParseOrdonnanceService {
             id: number;
             nom: string;
             description: string;
+            duree: string;
           } = {
             word: el.nom.split(' ')[0],
             description: text.description,
             id: parseInt(el.id),
             nom: el.nom,
+            duree: text.duree,
           };
           medFound.push(newData);
+          elementIsAdding = true;
         }
       });
+      if (parseText.length - 1 === i && !elementIsAdding) {
+        //on ajoute les éléments qui ne figurent pas dans la liste des médicaments connus tel quel
+        medFound.push({
+          word: '',
+          description: text.description,
+          id: i,
+          nom: text.medicament,
+          duree: text.duree,
+        });
+      }
     });
     console.log('medFOund', medFound);
+    const groupedMedicamentsListe = this.grouped(medFound);
+    console.log('groupedMedicamentsListe', groupedMedicamentsListe);
     //On regroupe tous les médicaments qui ont le même nom (dosage différent)
-    const grouped: Record<string, MedicamentApi[]> = medFound.reduce(
-      (acc, med) => {
-        if (!acc[med.word]) {
-          acc[med.word] = {
-            liste: [],
-            description: med.description,
-          };
-        }
-        acc[med.word].liste.push({
-          id: Number(med.id),
-          nom: med.nom,
-        });
-        return acc;
-      },
-      {},
-    );
-    console.log('grouped', grouped);
-    return grouped;
-    /*const medicamentsFound: MedicamentApi[] | null =
-      await this.medicamentService.fetchMedicaments();
-
-    if (!medicamentsFound)
-      throw new NotFoundException(
-        'Liste des médicaments du dictionnaire non disponibles',
-      );
-
-    //On cherche si certains mots co
-    words.forEach((word) => {
-      const med = this.fuseService.search(word);
-      console.log('med', med);
-      if (medicamentsFound) {
-        /*medicamentsFound.find((m) => {
-          console.log('m', m);
-        });*/
-    /*}
-      if (med && !medicamentsFound.find((m) => console.log('m', m))) {
-        medicamentsFound.push(med);
-      }*/
-    /*});*/
-    /*words.map((word, i) => {
-      const search = this.fuseService.search(word);
-      doses.map((dose) => {
-        if (dose.unit === word) {
-          console.log('word', `${words[i - 2]} ${words[i - 1]} ${words[i]}`);
-        }
-      });
-    });
-
-    // Retourner un tableau structuré avec correspondance doses/durées
-    /*return medicamentsFound.map((med, index) => ({
-      medicament: med,
-      dose: doses[index] ?? null,
-      duree: durees[index] ?? null,
-    }));*/
-    /* return null;*/
+    return groupedMedicamentsListe;
   }
 }

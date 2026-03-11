@@ -41,7 +41,7 @@ export class DashboardService {
             userId,
           },
         },
-        dateFin: { gte: today },
+        OR: [{ dateFin: { gte: today } }, { dateFin: null }],
       },
       include: {
         traitement: {

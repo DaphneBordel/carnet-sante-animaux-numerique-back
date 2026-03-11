@@ -8,7 +8,7 @@ import {
   MedicamentService,
 } from 'src/medicament/medicament.service';
 import {
-  ParsedTraitement,
+  GroupedMedicamentApi,
   ParseOrdonnanceService,
 } from 'src/parse-ordonnance/parse-ordonnance.service';
 
@@ -21,7 +21,7 @@ export class OcrService {
     private readonly parseOrdonnanceService: ParseOrdonnanceService,
   ) {}
 
-  async scanImage(file: Express.Multer.File): Promise<{ text: string } | null> {
+  async scanImage(file: Express.Multer.File): Promise<GroupedMedicamentApi[]> {
     const apiKey = process.env.OCR_API_KEY;
     console.log('file', file);
     const form = new FormData();
@@ -36,32 +36,54 @@ export class OcrService {
     });
     console.log('form', form);
 
-    try {
+    /*try {
       const response = await axios.post(
         'https://api.ocr.space/parse/image',
         form,
       );
-      console.log('response', response.data?.ParsedResults);
+      console.log('response', response.data);
       console.log(
         'OCR response',
         response.data?.ParsedResults?.[0]?.ParsedText,
       );
       const ocrText: string = response.data?.ParsedResults?.[0]?.ParsedText;
-      console.log('ocrText', ocrText);
-      //Récupérer les médicaments
-      const medicaments: MedicamentApi[] | null =
-        await this.medicamentService.fetchMedicaments();
-      //Initialiser Fuse.js
-      this.fuseService.init(medicaments);
-      //Parser le texte OCR
-      const extracted = this.parseOrdonnanceService.extractMedBlocks(ocrText);
-      console.log('extracted', extracted);
-      const parsed = this.parseOrdonnanceService.parse(extracted);
-      console.log('parsed', parsed);
-      return null;
-    } catch (err) {
-      console.log('error', err);
-      throw new BadRequestException(err);
+      //recoller le code sous "ocrText" ici
+    }  catch(err) { 
+    console.log('error', err);
+    throw new BadRequestException(err);
+    }*/
+    const ocrText: string = `I ) INFLACAM 15/ML 5ML \n
+      Faire avaler 0.18 mL matin et soir pendant 7 jours. Puis 0.15 mL \n
+      matin et soir en continu. \n
+      Essayer si possible de trouver la dose minimum efficace. \n
+      2 ) BAYTRIL 100/0 15ML \n
+      Faire avaler mL matin et soir pendant 3 semaines. \n
+      3 ) Nébulisation \n
+      Tous les jours au sérum physiologique, environ 10 minutes.`;
+    console.log('ocrText', ocrText);
+    //Récupérer les médicaments
+    const medicaments: MedicamentApi[] | null =
+      await this.medicamentService.fetchMedicaments();
+    //Initialiser Fuse.js
+    this.fuseService.init(medicaments);
+    //Parser le texte OCR
+    try {
+      const extracted =
+        await this.parseOrdonnanceService.extractMedBlocks(ocrText);
+      if (extracted) {
+        try {
+          const parsed = await this.parseOrdonnanceService.parse(extracted);
+          return parsed;
+        } catch (err) {
+          console.log('Error to parse orc');
+          throw new BadRequestException(err);
+        }
+      } else {
+        throw new BadRequestException('Data extracted is undefined');
+      }
+    } catch (error) {
+      console.log(`Erreur dans l'extraction`, error);
+      throw new BadRequestException(error);
     }
   }
 }

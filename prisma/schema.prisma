@@ -42,7 +42,7 @@ model Medicament {
   nom          String
   traitementId Int
   dateDebut    DateTime
-  dateFin      DateTime
+  dateFin      DateTime?
   posologie    String
   traitement   Traitement @relation(fields: [traitementId], references: [id])
 }
