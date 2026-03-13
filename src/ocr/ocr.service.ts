@@ -70,6 +70,7 @@ export class OcrService {
     try {
       const extracted =
         await this.parseOrdonnanceService.extractMedBlocks(ocrText);
+      console.log('extracted', extracted);
       if (extracted) {
         try {
           const parsed = await this.parseOrdonnanceService.parse(extracted);

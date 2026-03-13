@@ -1,5 +1,5 @@
 // medicament.service.ts
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import axios from 'axios';
 
 export interface MedicamentApi {
@@ -27,6 +27,22 @@ export class MedicamentService {
     } catch (err) {
       this.logger.error('Erreur fetch médicaments', err);
       return [];
+    }
+  }
+
+  async fetchMedicamentById(id: string) {
+    //console.log('id in fetchMedicamentById', id);
+    if (!id) throw new NotFoundException('id de médicament obligatoire');
+
+    try {
+      const res = await axios.get(
+        `https://medicament-vet.ddns.net/api/medicament/${id}`,
+      );
+      //console.log('res.data', res.data);
+      return res.data;
+    } catch (error) {
+      console.log('error in fetchMedicamentId', error);
+      this.logger.error('Erreur fetch medicaments by id', error);
     }
   }
 }
