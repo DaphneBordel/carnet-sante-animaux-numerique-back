@@ -23,6 +23,8 @@ export class VermifugeService {
     //Si le userId est undefined on rejète la requête immédiatement
     if (!id) throw new ForbiddenException('User is required');
 
+    console.log('dto vermifuge', dto);
+
     //on vérifie que l'utilisateur existe
     await this.ownershipService.verifyUserExists(id);
     //on vérifie que l'animal appartient à l'utilisateur
@@ -30,7 +32,7 @@ export class VermifugeService {
 
     const vermifuge = await this.prismaService.vermifuge.create({
       data: {
-        date: dto.date ? new Date(dto.date) : undefined,
+        date: dto.date ? new Date(dto.date) : new Date(Date.now()),
         nom: dto.nom,
         qtite: dto.qtite,
         dateRappel: dto.dateRappel ? new Date(dto.dateRappel) : null,

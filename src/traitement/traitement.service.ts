@@ -45,7 +45,7 @@ export class TraitementService {
               posologie: med.posologie,
               traitementId: newTraitement.id,
               dateDebut: new Date(med.dateDebut),
-              dateFin: new Date(med.dateFin),
+              dateFin: med.dateFin ? new Date(med.dateFin) : null,
             },
           }),
         ),

@@ -59,7 +59,10 @@ export class OcrService {
       2 ) BAYTRIL 100/0 15ML \n
       Faire avaler mL matin et soir pendant 3 semaines. \n
       3 ) Nébulisation \n
-      Tous les jours au sérum physiologique, environ 10 minutes.`;
+      Tous les jours au sérum physiologique, environ 10 minutes. \n
+      4 ) PANACUR 100/0 \n
+      Faire avaler une goutte dans le bec matin et soir pendant 5 jours.
+      `;
     console.log('ocrText', ocrText);
     //Récupérer les médicaments
     const medicaments: MedicamentApi[] | null =

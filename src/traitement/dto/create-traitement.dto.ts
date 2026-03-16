@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsString } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateMedicamentDto {
   @IsString()
@@ -10,8 +10,9 @@ export class CreateMedicamentDto {
   @IsDateString()
   dateDebut: string;
 
+  @IsOptional()
   @IsDateString()
-  dateFin: string;
+  dateFin?: string;
 }
 
 export class CreateTraitementDto {
