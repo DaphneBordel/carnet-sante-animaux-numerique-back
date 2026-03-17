@@ -252,7 +252,7 @@ export class AnimauxService {
     const imageUrl = `uploads/${file.filename}`;
 
     return this.prismaService.animal.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { image: imageUrl },
     });
   }
@@ -272,11 +272,11 @@ export class AnimauxService {
       userId,
       parseInt(animalId),
     );
-
+    console.log('animalId', animalId);
     try {
       await this.prismaService.animal.delete({
         where: {
-          id: Number(animalId),
+          id: parseInt(animalId),
         },
         include: {
           traitements: true,

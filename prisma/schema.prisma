@@ -34,7 +34,7 @@ model Antiparasitaire {
   qtite      String
   dateRappel DateTime?
   animalId  Int
-  animal    Animal   @relation(fields: [animalId], references: [id])
+  animal    Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
 }
 
 model Medicament {
@@ -44,7 +44,7 @@ model Medicament {
   dateDebut    DateTime
   dateFin      DateTime?
   posologie    String
-  traitement   Traitement @relation(fields: [traitementId], references: [id])
+  traitement   Traitement @relation(fields: [traitementId], references: [id], onDelete: Cascade)
 }
 
 model Poids {
@@ -52,14 +52,14 @@ model Poids {
   date     DateTime @default(now())
   kilo     Float
   animalId Int
-  animal  Animal  @relation(fields: [animalId], references: [id])
+  animal  Animal  @relation(fields: [animalId], references: [id], onDelete: Cascade)
 }
 
 model Traitement {
   id         Int          @id @default(autoincrement())
   animalId  Int
   medicaments Medicament[]
-  animal    Animal      @relation(fields: [animalId], references: [id])
+  animal    Animal      @relation(fields: [animalId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -76,7 +76,7 @@ model Vaccin {
   nom        String
   dateRappel DateTime?
   animalId  Int
-  animal   Animal   @relation(fields: [animalId], references: [id])
+  animal   Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
 }
 
 model Vermifuge {
@@ -86,7 +86,7 @@ model Vermifuge {
   qtite      String
   dateRappel DateTime?
   animalId  Int
-  animal    Animal   @relation(fields: [animalId], references: [id])
+  animal    Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
 }
 
 enum animaux_type {
