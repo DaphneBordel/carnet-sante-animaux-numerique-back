@@ -36,7 +36,7 @@ export class OcrService {
     });
     console.log('form', form);
 
-    /*try {
+    try {
       const response = await axios.post(
         'https://api.ocr.space/parse/image',
         form,
@@ -47,12 +47,37 @@ export class OcrService {
         response.data?.ParsedResults?.[0]?.ParsedText,
       );
       const ocrText: string = response.data?.ParsedResults?.[0]?.ParsedText;
-      //recoller le code sous "ocrText" ici
-    }  catch(err) { 
-    console.log('error', err);
-    throw new BadRequestException(err);
-    }*/
-    const ocrText: string = `I ) INFLACAM 15/ML 5ML \n
+      //Récupérer les médicaments
+      const medicaments: MedicamentApi[] | null =
+        await this.medicamentService.fetchMedicaments();
+      //Initialiser Fuse.js
+      this.fuseService.init(medicaments);
+      //Parser le texte OCR
+      try {
+        const extracted =
+          await this.parseOrdonnanceService.extractMedBlocks(ocrText);
+        console.log('extracted', extracted);
+        if (extracted) {
+          try {
+            const parsed = await this.parseOrdonnanceService.parse(extracted);
+            return parsed;
+          } catch (err) {
+            console.log('Error to parse orc');
+            throw new BadRequestException(err);
+          }
+        } else {
+          throw new BadRequestException('Data extracted is undefined');
+        }
+      } catch (error) {
+        console.log(`Erreur dans l'extraction`, error);
+        throw new BadRequestException(error);
+      }
+    } catch (err) {
+      console.log('error', err);
+      throw new BadRequestException(err);
+    }
+    //DONNEE POUR TEST OCR :
+    /*const ocrText: string = `I ) INFLACAM 15/ML 5ML \n
       Faire avaler 0.18 mL matin et soir pendant 7 jours. Puis 0.15 mL \n
       matin et soir en continu. \n
       Essayer si possible de trouver la dose minimum efficace. \n
@@ -60,34 +85,9 @@ export class OcrService {
       Faire avaler mL matin et soir pendant 3 semaines. \n
       3 ) Nébulisation \n
       Tous les jours au sérum physiologique, environ 10 minutes. \n
-      4 ) PANACUR 100/0 \n
+      4 ) Panacur 100/0 \n
       Faire avaler une goutte dans le bec matin et soir pendant 5 jours.
       `;
-    console.log('ocrText', ocrText);
-    //Récupérer les médicaments
-    const medicaments: MedicamentApi[] | null =
-      await this.medicamentService.fetchMedicaments();
-    //Initialiser Fuse.js
-    this.fuseService.init(medicaments);
-    //Parser le texte OCR
-    try {
-      const extracted =
-        await this.parseOrdonnanceService.extractMedBlocks(ocrText);
-      console.log('extracted', extracted);
-      if (extracted) {
-        try {
-          const parsed = await this.parseOrdonnanceService.parse(extracted);
-          return parsed;
-        } catch (err) {
-          console.log('Error to parse orc');
-          throw new BadRequestException(err);
-        }
-      } else {
-        throw new BadRequestException('Data extracted is undefined');
-      }
-    } catch (error) {
-      console.log(`Erreur dans l'extraction`, error);
-      throw new BadRequestException(error);
-    }
+    console.log('ocrText', ocrText);*/
   }
 }

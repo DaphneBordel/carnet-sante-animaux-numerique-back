@@ -186,9 +186,7 @@ export class ParseOrdonnanceService {
 
       if (!detectedMed) {
         const words = upperLine.split(/\s+/);
-        console.log("words", words);
         const found = words.find((w) => medKeyword.has(w));
-        console.log("found", found);
         if (found) detectedMed = found;
       }
 
@@ -292,8 +290,6 @@ export class ParseOrdonnanceService {
 
         for (let j = 0; j < groupedBlock.length; j++) {
           const group = groupedBlock[j];
-          console.log("group.word", group.word);
-          console.log("med.word", med.word);
           if (group.word === med.word) {
             group.liste.push({ id: med.id, nom: med.nom });
             elementExist = true;
