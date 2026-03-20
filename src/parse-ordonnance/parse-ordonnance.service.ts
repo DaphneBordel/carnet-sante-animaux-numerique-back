@@ -121,6 +121,7 @@ export class ParseOrdonnanceService {
   //extraction des informations de l'ordonnance (transformé en texte)
   // Retourne un tableau de médicaments avec le nom du médicament, sa description et la durée du traitement
   async extractMedBlocks(text: string): Promise<MedBlock[]> {
+    //on sépare le texte par ligne
     const lines = text
       .split('\n')
       .map((l) => l.trim())
@@ -128,6 +129,7 @@ export class ParseOrdonnanceService {
 
     let listeMedicaments: MedicamentApi[] | null;
 
+    //on récupère la BDD des médicaments pour extraction des noms de médicaments dans l'ordonnance
     try {
       listeMedicaments = await this.medicamentService.fetchMedicaments();
     } catch (error) {
@@ -140,6 +142,7 @@ export class ParseOrdonnanceService {
       listeMedicaments.map((m) => m.nom.split(' ')[0].toUpperCase()),
     );
 
+    //regex pour extraction des données : durée
     const regexDuration = /\d+\s*(jours?|semaines?|mois)/gi;
     const regexNumberedMed = /^\s*(\d+|[IVX]+)\s*[\.\)\/]\s*([A-Z0-9\-]+)/i;
     const regexSectionStop = /^[A-ZÉÈÀÂÊÎÔÛÄËÏÖÜÇ][A-Za-zÀ-ÿ\s]+:/;

@@ -1,12 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import FormData from 'form-data';
-import { FuseService } from 'src/fuse/fuse.service';
-import {
-  MedicamentApi,
-  MedicamentService,
-} from 'src/medicament/medicament.service';
 import {
   GroupedMedicamentApi,
   ParseOrdonnanceService,
@@ -15,9 +9,6 @@ import {
 @Injectable()
 export class OcrService {
   constructor(
-    private configService: ConfigService,
-    private fuseService: FuseService,
-    private readonly medicamentService: MedicamentService,
     private readonly parseOrdonnanceService: ParseOrdonnanceService,
   ) {}
 
@@ -29,6 +20,9 @@ export class OcrService {
     form.append('apikey', apiKey);
     form.append('language', 'fre');
     form.append('detectOrientation', 'true');
+    form.append('OCREngine', '1');
+    form.append('scale', 'true');
+    form.append('isTable', 'true');
 
     form.append('file', file.buffer, {
       filename: file.originalname,
@@ -47,12 +41,8 @@ export class OcrService {
         response.data?.ParsedResults?.[0]?.ParsedText,
       );
       const ocrText: string = response.data?.ParsedResults?.[0]?.ParsedText;
-      //Récupérer les médicaments
-      const medicaments: MedicamentApi[] | null =
-        await this.medicamentService.fetchMedicaments();
-      //Initialiser Fuse.js
-      this.fuseService.init(medicaments);
       //Parser le texte OCR
+      console.log('ocrText before extractMedBlocks', ocrText);
       try {
         const extracted =
           await this.parseOrdonnanceService.extractMedBlocks(ocrText);
