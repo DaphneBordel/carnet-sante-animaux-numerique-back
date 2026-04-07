@@ -29,7 +29,7 @@ OCR_API_KEY=*rajouter ici la clé de l'OCR*
 
 4. Obtenir une clé d'API pour l'OCR (ocr space) ici:
    https://ocr.space/ocrapi/freekey
-   Mettre à jour le .env avec la clé d'API reçue
+Mettre à jour le .env avec la clé d'API reçue
 
 5. Lancer Prisma :
 npx prisma generate
