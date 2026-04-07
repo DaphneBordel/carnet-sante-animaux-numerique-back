@@ -19,9 +19,9 @@ npm install
 # Configuration
 
 1. Créer un fichier .env à la racine :
-   /n DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/nom_de_la_database"
-   /n SECRET_JWT=ma-cle-secrete-pour-jwt
-   /n OCR_API_KEY=*rajouter ici la clé de l'OCR*
+- DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/nom_de_la_database"
+- SECRET_JWT=ma-cle-secrete-pour-jwt
+- OCR_API_KEY=*rajouter ici la clé de l'OCR*
 
 3. Créer la base de données
 - Créer une base de données dans phpMyAdmin
