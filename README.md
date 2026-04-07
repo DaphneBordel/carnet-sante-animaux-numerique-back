@@ -28,19 +28,16 @@ npm install
 - Mettre à jour le .env
 
 4. Obtenir une clé d'API pour l'OCR (ocr space) ici:
-   https://ocr.space/ocrapi/freekey
--> Mettre à jour le .env avec la clé d'API reçue
+   - https://ocr.space/ocrapi/freekey
+   - Mettre à jour le .env avec la clé d'API reçue
 
 6. Lancer Prisma :
-npx prisma generate
-npx prisma migrate dev --name init
+- npx prisma generate
+- npx prisma migrate dev --name init
 
 7. Lancer le projet
-npm run start:dev
-
-API disponible sur :
-
-http://localhost:3001
+- npm run start:dev
+- API disponible sur : http://localhost:3001
 
 # Licence
 
